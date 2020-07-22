@@ -11,7 +11,7 @@ website: https://www.spigotmc.org/resources/tokenmanager.8610/
 commands:
    token:
      description: Main command of TokenManager.
-     aliases: [tokens]
+     aliases: [tokens, ether, aether]
    tm:
      description: Administrative command of TokenManager.
      aliases: [tokenmanager]

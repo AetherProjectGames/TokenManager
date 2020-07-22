@@ -4,14 +4,7 @@ import java.util.OptionalLong;
 import me.realized.tokenmanager.Permissions;
 import me.realized.tokenmanager.TokenManagerPlugin;
 import me.realized.tokenmanager.command.BaseCommand;
-import me.realized.tokenmanager.command.commands.subcommands.BalanceCommand;
-import me.realized.tokenmanager.command.commands.subcommands.SellCommand;
-import me.realized.tokenmanager.command.commands.subcommands.SendCommand;
-import me.realized.tokenmanager.command.commands.subcommands.ShopCommand;
-import me.realized.tokenmanager.command.commands.subcommands.ShopsCommand;
-import me.realized.tokenmanager.command.commands.subcommands.TopCommand;
-import me.realized.tokenmanager.command.commands.subcommands.VersionCommand;
-import me.realized.tokenmanager.command.commands.subcommands.WorthCommand;
+import me.realized.tokenmanager.command.commands.subcommands.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -20,7 +13,7 @@ public class TokenCommand extends BaseCommand {
     public TokenCommand(final TokenManagerPlugin plugin) {
         super(plugin, "token", Permissions.CMD_TOKEN, false);
         child(
-            new BalanceCommand(plugin),
+            new HelpCommand(plugin),
             new SendCommand(plugin),
             new TopCommand(plugin),
             new ShopCommand(plugin),
@@ -47,6 +40,6 @@ public class TokenCommand extends BaseCommand {
             balance = OptionalLong.empty();
         }
 
-        sendMessage(sender, true, "COMMAND.token.usage", "tokens", balance.orElse(0));
+        sendMessage(sender, true, "COMMAND.token.balance", "tokens", balance.orElse(0));
     }
 }

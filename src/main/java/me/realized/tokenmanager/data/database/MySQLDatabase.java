@@ -120,7 +120,11 @@ public class MySQLDatabase extends AbstractDatabase {
 
     @Override
     public OptionalLong get(final Player player) {
-        return from(data.get(player.getUniqueId()));
+        if(player != null) {
+            UUID uniqueId = player.getUniqueId();
+            return from(data.get(uniqueId));
+        }
+        return OptionalLong.empty();
     }
 
     @Override

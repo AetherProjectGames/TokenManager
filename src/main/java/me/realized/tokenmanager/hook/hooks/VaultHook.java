@@ -42,12 +42,12 @@ public class VaultHook extends PluginHook<TokenManagerPlugin> {
 
         @Override
         public String currencyNamePlural() {
-            return "tokens";
+            return plugin.getLang().getMessage("PLACEHOLDER.currency.name-plural");
         }
 
         @Override
         public String currencyNameSingular() {
-            return "token";
+            return plugin.getLang().getMessage("PLACEHOLDER.currency.name-singular");
         }
 
         @Override
@@ -98,7 +98,7 @@ public class VaultHook extends PluginHook<TokenManagerPlugin> {
         @Override
         public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
             if (player == null) {
-                return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player is not online");
+                return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, plugin.getLang().getMessage("ERROR.vault.player-offline"));
             }
 
             long balance = (long) getBalance(player);
@@ -108,7 +108,7 @@ public class VaultHook extends PluginHook<TokenManagerPlugin> {
             }
 
             if (balance < amount) {
-                return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.FAILURE, "Not enough tokens");
+                return new EconomyResponse(amount, balance, EconomyResponse.ResponseType.FAILURE, plugin.getLang().getMessage("ERROR.vault.no-enough-tokens"));
             }
 
             balance = balance - (long) amount;
@@ -134,7 +134,7 @@ public class VaultHook extends PluginHook<TokenManagerPlugin> {
         @Override
         public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
             if (player == null) {
-                return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player is not online");
+                return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, plugin.getLang().getMessage("ERROR.vault.player-offline"));
             }
 
             long balance = (long) getBalance(player);

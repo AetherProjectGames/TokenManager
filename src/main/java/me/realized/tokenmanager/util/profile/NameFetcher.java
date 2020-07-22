@@ -16,6 +16,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -91,10 +92,13 @@ public final class NameFetcher {
                 keys.remove(first);
             } else {
                 final String name;
-                final Player player;
+                final Player player = Bukkit.getPlayer(first.uuid);
+                final OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(first.uuid);
 
-                if ((player = Bukkit.getPlayer(first.uuid)) != null) {
+                if (player != null) {
                     name = player.getName();
+                } else if(offlinePlayer.getName() != null) {
+                    name = offlinePlayer.getName();
                 } else {
                     name = getName(first.uuid, first.attempts == 0 ? MOJANG_URL : GAMEAPIS_URL);
                 }
