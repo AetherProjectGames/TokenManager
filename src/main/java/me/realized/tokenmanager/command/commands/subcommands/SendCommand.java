@@ -64,7 +64,7 @@ public class SendCommand extends BaseCommand {
         final OptionalDouble balance = dataManager.get(player);
 
         if (!balance.isPresent()) {
-            sendMessage(sender, true, "&cFailed to load data of " + sender.getName() + ".");
+            sendMessage(sender, false, "&cFailed to load data of " + sender.getName() + ".");
             return;
         }
 

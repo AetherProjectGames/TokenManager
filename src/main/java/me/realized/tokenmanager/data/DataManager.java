@@ -61,8 +61,6 @@ public class DataManager implements Loadable, Listener {
             lastUpdateMillis = System.currentTimeMillis();
             topCache = args;
         })), 0L, 20L * 60L * getUpdateInterval());
-
-        Bukkit.getOnlinePlayers().forEach(player -> database.load(player));
     }
 
     @Override
@@ -124,45 +122,10 @@ public class DataManager implements Loadable, Listener {
         return StringUtil.format((lastUpdateMillis + 60000L * getUpdateInterval() - System.currentTimeMillis()) / 1000);
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void on(final AsyncPlayerPreLoginEvent event) {
-        if (database == null || event.getLoginResult() != Result.ALLOWED) {
-            return;
-        }
-
-        database.load(event, balance -> {
-            final Collection<QueuedCommand> commands = queuedCommands.asMap().remove(event.getUniqueId());
-
-            if (commands == null) {
-                return balance;
-            }
-
-            final Player player = Bukkit.getPlayer(event.getUniqueId());
-            double total = balance;
-
-            for (final QueuedCommand command : commands) {
-                final ModifyType type = command.type;
-                final double amount = command.amount;
-                total = type.apply(total, amount);
-
-                if (!command.silent) {
-                    plugin.getLang().sendMessage(player, true, "COMMAND." + (type == ModifyType.ADD ? "add" : "remove"), "amount", amount);
-                }
-            }
-
-            return total;
-        });
-    }
-
     @EventHandler
     public void on(final PlayerQuitEvent event) {
-        if (database == null) {
-            return;
-        }
-
         final Player player = event.getPlayer();
         queuedCommands.asMap().remove(player.getUniqueId());
-        database.save(player);
     }
 
     private class QueuedCommand {

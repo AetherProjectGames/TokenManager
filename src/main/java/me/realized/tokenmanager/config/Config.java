@@ -53,8 +53,6 @@ public class Config extends AbstractConfiguration<TokenManagerPlugin> {
     @Getter
     private String mysqlUrl;
     @Getter
-    private boolean redisEnabled;
-    @Getter
     private String redisServer;
     @Getter
     private int redisPort;
@@ -110,7 +108,6 @@ public class Config extends AbstractConfiguration<TokenManagerPlugin> {
         mysqlDatabase = configuration.getString("data.mysql.database", "database");
         mysqlTable = configuration.getString("data.mysql.table", "tokenmanager");
         mysqlUrl = configuration.getString("data.mysql.url", "jdbc:mysql://%hostname%:%port%/%database%");
-        redisEnabled = configuration.getBoolean("data.mysql.redis.enabled", false);
         redisServer = configuration.getString("data.mysql.redis.server", "127.0.0.1");
         redisPort = configuration.getInt("data.mysql.redis.port", 6379);
         redisPassword = configuration.getString("data.mysql.redis.password", "");

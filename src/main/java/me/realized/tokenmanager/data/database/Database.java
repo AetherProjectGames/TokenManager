@@ -35,12 +35,6 @@ public interface Database {
 
     void set(final String uuid, final String username, final ModifyType type, final double amount, final double balance, final boolean silent, final Runnable onDone, final Consumer<String> onError);
 
-    void load(final AsyncPlayerPreLoginEvent event, final Function<Double, Double> modifyLoad);
-
-    void load(final Player player);
-
-    void save(final Player player);
-
     void shutdown() throws Exception;
 
     /**
