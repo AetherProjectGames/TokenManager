@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.OptionalLong;
+import java.util.OptionalDouble;
 import java.util.function.Consumer;
 import me.realized.tokenmanager.util.EnumUtil;
 import me.realized.tokenmanager.util.NumberUtil;
@@ -152,10 +152,10 @@ public final class ItemUtil {
                 }
             }
 
-            final OptionalLong value;
+            final OptionalDouble value;
 
             if ((value = NumberUtil.parseLong(materialData[1])).isPresent()) {
-                result.setDurability((short) value.getAsLong());
+                result.setDurability((short) value.getAsDouble());
             }
         }
 

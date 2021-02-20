@@ -2,7 +2,7 @@ package me.realized.tokenmanager.shop;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalLong;
+import java.util.OptionalDouble;
 import lombok.Getter;
 import me.realized.tokenmanager.Permissions;
 import me.realized.tokenmanager.TokenManagerPlugin;
@@ -70,7 +70,7 @@ public class Slot {
             return false;
         }
 
-        final OptionalLong cached = plugin.getDataManager().get(player);
+        final OptionalDouble cached = plugin.getDataManager().get(player);
 
         if (!cached.isPresent()) {
             plugin.doSync(player::closeInventory);
@@ -78,7 +78,7 @@ public class Slot {
             return false;
         }
 
-        long balance = cached.getAsLong();
+        double balance = cached.getAsDouble();
 
         if (balance - cost < 0) {
             plugin.doSync(player::closeInventory);

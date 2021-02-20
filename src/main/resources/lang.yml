@@ -18,6 +18,7 @@ ERROR:
   data-not-enough: '&cNot enough data found to display the top token balances.'
   on-click-cooldown: '&cYou''re clicking too fast! Try with a little delay. (%remaining%)'
   target-is-self: '&cYou cannot send tokens to yourself.'
+  target-dont-have-permission: '&cYou cannot send tokens to this player because he cant receive tokens .'
   target-has-same-ip: '&cYou cannot send tokens to this player. (alt prevention)'
   no-item-in-hand: '&cYou must be holding an item to do this.'
   item-is-worthless: '&cNo worth has been defined for this item.'

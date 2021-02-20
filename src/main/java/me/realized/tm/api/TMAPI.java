@@ -22,50 +22,50 @@ public class TMAPI {
     }
 
     /**
-     * @deprecated As of v3.0.0, use {@link TokenManager#setTokens(Player, long)} instead.
+     * @deprecated As of v3.0.0, use {@link TokenManager#setTokens(Player, double)} instead.
      */
     @Deprecated
-    public static void addTokens(Player player, int amount) {
-        setTokens(player, (int) (getTokens(player) + amount));
+    public static void addTokens(Player player, double amount) {
+        setTokens(player, getTokens(player) + amount);
     }
 
     /**
-     * @deprecated As of v3.0.0, use {@link TokenManager#setTokens(Player, long)} instead.
+     * @deprecated As of v3.0.0, use {@link TokenManager#setTokens(Player, double)} instead.
      */
     @Deprecated
-    public static void addTokens(UUID uuid, int amount) {
-        setTokens(uuid, (int) (getTokens(uuid) + amount));
+    public static void addTokens(UUID uuid, double amount) {
+        setTokens(uuid, getTokens(uuid) + amount);
     }
 
     /**
-     * @deprecated As of v3.0.0, use {@link TokenManager#setTokens(Player, long)} instead.
+     * @deprecated As of v3.0.0, use {@link TokenManager#setTokens(Player, double)} instead.
      */
     @Deprecated
-    public static void removeTokens(Player player, int amount) {
-        setTokens(player, (int) (getTokens(player) - amount));
+    public static void removeTokens(Player player, double amount) {
+        setTokens(player, getTokens(player) - amount);
     }
 
     /**
-     * @deprecated As of v3.0.0, use {@link TokenManager#setTokens(Player, long)} instead.
+     * @deprecated As of v3.0.0, use {@link TokenManager#setTokens(Player, double)} instead.
      */
     @Deprecated
     public static void removeTokens(UUID uuid, int amount) {
-        setTokens(uuid, (int) (getTokens(uuid) - amount));
+        setTokens(uuid, getTokens(uuid) - amount);
     }
 
     /**
-     * @deprecated As of v3.0.0, use {@link TokenManager#setTokens(Player, long)} instead.
+     * @deprecated As of v3.0.0, use {@link TokenManager#setTokens(Player, double)} instead.
      */
     @Deprecated
-    public static void setTokens(Player player, int amount) {
+    public static void setTokens(Player player, double amount) {
         getApi().setTokens(player, amount);
     }
 
     /**
-     * @deprecated As of v3.0.0, use {@link TokenManager#setTokens(Player, long)} instead.
+     * @deprecated As of v3.0.0, use {@link TokenManager#setTokens(Player, double)} instead.
      */
     @Deprecated
-    public static void setTokens(UUID uuid, int amount) {
+    public static void setTokens(UUID uuid, double amount) {
         final Player player = Bukkit.getPlayer(uuid);
 
         if (player == null) {
@@ -79,7 +79,7 @@ public class TMAPI {
      * @deprecated As of v3.0.0, use {@link TokenManager#getTokens(Player)} instead.
      */
     @Deprecated
-    public static long getTokens(Player player) {
+    public static double getTokens(Player player) {
         return getApi().getTokens(player).orElse(0);
     }
 
@@ -87,7 +87,7 @@ public class TMAPI {
      * @deprecated As of v3.0.0, use {@link TokenManager#getTokens(Player)} instead.
      */
     @Deprecated
-    public static long getTokens(UUID uuid) {
+    public static double getTokens(UUID uuid) {
         final Player player = Bukkit.getPlayer(uuid);
 
         if (player == null) {

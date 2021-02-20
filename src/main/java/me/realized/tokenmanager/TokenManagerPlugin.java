@@ -25,10 +25,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalLong;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TokenManagerPlugin extends JavaPlugin implements TokenManager, Listener {
@@ -176,76 +173,76 @@ public class TokenManagerPlugin extends JavaPlugin implements TokenManager, List
     }
 
     @Override
-    public OptionalLong getTokens(final Player player) {
+    public OptionalDouble getTokens(final Player player) {
         return dataManager.get(player);
     }
 
     @Override
-    public void setTokens(final Player player, final long amount) {
+    public void setTokens(final Player player, final double amount) {
         dataManager.set(player, amount);
     }
 
     @Override
-    public boolean addTokens(final Player player, final long amount) {
-        final OptionalLong balance = getTokens(player);
+    public boolean addTokens(final Player player, final double amount) {
+        final OptionalDouble balance = getTokens(player);
 
         if (!balance.isPresent()) {
             return false;
         }
 
-        setTokens(player, balance.getAsLong() + amount);
+        setTokens(player, balance.getAsDouble() + amount);
         return true;
     }
 
     @Override
-    public boolean removeTokens(final Player player, final long amount) {
-        final OptionalLong balance = getTokens(player);
+    public boolean removeTokens(final Player player, final double amount) {
+        final OptionalDouble balance = getTokens(player);
 
         if (!balance.isPresent()) {
             return false;
         }
 
-        setTokens(player, balance.getAsLong() - amount);
+        setTokens(player, balance.getAsDouble() - amount);
         return true;
     }
 
     @Override
-    public void setTokens(final String key, final long amount) {
-        dataManager.set(key, ModifyType.SET, amount, amount, true, null, Log::error);
+    public void setTokens(final String uuid, final String username, final double amount) {
+        dataManager.set(uuid, username, ModifyType.SET, amount, amount, true, null, Log::error);
     }
 
     @Override
-    public void addTokens(final String key, final long amount, final boolean silent) {
-        dataManager.get(key, balance -> {
+    public void addTokens(final String uuid, final String username, final double amount, final boolean silent) {
+        dataManager.get(uuid, username, balance -> {
             if (!balance.isPresent()) {
                 return;
             }
 
             final ModifyType type = ModifyType.ADD;
-            dataManager.set(key, type, amount, type.apply(balance.getAsLong(), amount), silent, null, Log::error);
+            dataManager.set(uuid, username, type, amount, type.apply(balance.getAsDouble(), amount), silent, null, Log::error);
         }, Log::error);
     }
 
     @Override
-    public void addTokens(final String key, final long amount) {
-        addTokens(key, amount, false);
+    public void addTokens(final String uuid, final String username, final double amount) {
+        addTokens(uuid, username, amount, false);
     }
 
     @Override
-    public void removeTokens(final String key, final long amount, final boolean silent) {
-        dataManager.get(key, balance -> {
+    public void removeTokens(final String uuid, final String username, final double amount, final boolean silent) {
+        dataManager.get(uuid, username, balance -> {
             if (!balance.isPresent()) {
                 return;
             }
 
             final ModifyType type = ModifyType.REMOVE;
-            dataManager.set(key, type, amount, type.apply(balance.getAsLong(), amount), silent, null, Log::error);
+            dataManager.set(uuid, username, type, amount, type.apply(balance.getAsDouble(), amount), silent, null, Log::error);
         }, Log::error);
     }
 
     @Override
-    public void removeTokens(final String key, final long amount) {
-        removeTokens(key, amount, false);
+    public void removeTokens(final String uuid, final String username, final double amount) {
+        removeTokens(uuid, username, amount, false);
     }
 
     @Override
@@ -293,7 +290,7 @@ public class TokenManagerPlugin extends JavaPlugin implements TokenManager, List
             return "Player is required";
         }
 
-        final long balance = dataManager.get(player).orElse(0);
+        final double balance = dataManager.get(player).orElse(0);
 
         switch (identifier) {
             case "tokens":

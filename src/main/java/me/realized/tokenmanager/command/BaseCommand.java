@@ -29,8 +29,7 @@ public abstract class BaseCommand extends AbstractCommand<TokenManagerPlugin> {
         this.shopManager = plugin.getShopManager();
         this.dataManager = plugin.getDataManager();
 
-        final String mode = config.getOnlineMode();
-        this.online = mode.equals("auto") ? ProfileUtil.isOnlineMode() : mode.equals("true");
+        this.online = true;
     }
 
     protected void sendMessage(final CommandSender receiver, final boolean config, final String in, final Object... replacers) {

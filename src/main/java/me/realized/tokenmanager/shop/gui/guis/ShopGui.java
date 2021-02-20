@@ -34,7 +34,7 @@ public class ShopGui extends BaseGui {
 
     @Override
     public void refresh(final Player player, final boolean firstLoad) {
-        final long balance = dataManager.get(player).orElse(0);
+        final double balance = dataManager.get(player).orElse(0);
 
         for (int slot = 0; slot < inventory.getSize(); slot++) {
             final Slot data = shop.getSlot(slot);

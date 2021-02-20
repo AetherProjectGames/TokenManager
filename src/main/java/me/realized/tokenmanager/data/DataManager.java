@@ -5,7 +5,7 @@ import com.google.common.collect.Multimap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.OptionalLong;
+import java.util.OptionalDouble;
 import java.util.UUID;
 import java.util.function.Consumer;
 import lombok.Getter;
@@ -13,7 +13,6 @@ import me.realized.tokenmanager.TokenManagerPlugin;
 import me.realized.tokenmanager.command.commands.subcommands.OfflineCommand.ModifyType;
 import me.realized.tokenmanager.data.database.Database;
 import me.realized.tokenmanager.data.database.Database.TopElement;
-import me.realized.tokenmanager.data.database.FileDatabase;
 import me.realized.tokenmanager.data.database.MySQLDatabase;
 import me.realized.tokenmanager.util.Loadable;
 import me.realized.tokenmanager.util.Log;
@@ -49,7 +48,7 @@ public class DataManager implements Loadable, Listener {
 
     @Override
     public void handleLoad() throws Exception {
-        this.database = plugin.getConfiguration().isMysqlEnabled() ? new MySQLDatabase(plugin) : new FileDatabase(plugin);
+        this.database = new MySQLDatabase(plugin);
         final boolean online = database.isOnlineMode();
         Log.info("===============================================");
         Log.info("TokenManager has detected your server as " + (online ? "online" : "offline") + " mode.");
@@ -80,26 +79,26 @@ public class DataManager implements Loadable, Listener {
         database = null;
     }
 
-    public OptionalLong get(final Player player) {
-        return database != null ? database.get(player) : OptionalLong.empty();
+    public OptionalDouble get(final Player player) {
+        return database != null ? database.get(player) : OptionalDouble.empty();
     }
 
-    public void set(final Player player, final long amount) {
+    public void set(final Player player, final double amount) {
         if (database != null) {
             database.set(player, amount);
         }
     }
 
-    public void get(final String key, final Consumer<OptionalLong> onLoad, final Consumer<String> onError) {
+    public void get(final  String uuid, final String username, final Consumer<OptionalDouble> onLoad, final Consumer<String> onError) {
         if (database != null) {
-            database.get(key, onLoad, onError, false);
+            database.get(uuid, username, onLoad, onError, false);
         }
     }
 
-    public void set(final String key, final ModifyType type, final long amount, final long balance, final boolean silent, final Runnable onDone,
+    public void set(final String uuid, final String username, final ModifyType type, final double amount, final double balance, final boolean silent, final Runnable onDone,
         final Consumer<String> onError) {
         if (database != null) {
-            database.set(key, type, amount, balance, silent, onDone, onError);
+            database.set(uuid, username, type, amount, balance, silent, onDone, onError);
         }
     }
 
@@ -109,7 +108,7 @@ public class DataManager implements Loadable, Listener {
         }
     }
 
-    public void queueCommand(final Player player, final ModifyType type, final long amount, final boolean silent) {
+    public void queueCommand(final Player player, final ModifyType type, final double amount, final boolean silent) {
         queuedCommands.put(player.getUniqueId(), new QueuedCommand(type, amount, silent));
     }
 
@@ -139,11 +138,11 @@ public class DataManager implements Loadable, Listener {
             }
 
             final Player player = Bukkit.getPlayer(event.getUniqueId());
-            long total = balance;
+            double total = balance;
 
             for (final QueuedCommand command : commands) {
                 final ModifyType type = command.type;
-                final long amount = command.amount;
+                final double amount = command.amount;
                 total = type.apply(total, amount);
 
                 if (!command.silent) {
@@ -169,10 +168,10 @@ public class DataManager implements Loadable, Listener {
     private class QueuedCommand {
 
         private final ModifyType type;
-        private final long amount;
+        private final double amount;
         private final boolean silent;
 
-        QueuedCommand(final ModifyType type, final long amount, final boolean silent) {
+        QueuedCommand(final ModifyType type, final double amount, final boolean silent) {
             this.type = type;
             this.amount = amount;
             this.silent = silent;

@@ -29,14 +29,14 @@ public class ConfirmGui extends BaseGui {
 
     @Override
     public void refresh(final Player player, final boolean firstLoad) {
-        final long balance = dataManager.get(player).orElse(0);
+        final double balance = dataManager.get(player).orElse(0);
         final int cost = shop.getSlot(this.slot).getCost();
         inventory.setItem(CONFIRM_PURCHASE_SLOT, replace(player, inventory.getItem(CONFIRM_PURCHASE_SLOT), balance, cost));
         inventory.setItem(ITEM_SLOT, replace(player, shop.getSlot(this.slot).getDisplayed().clone(), balance, cost));
         inventory.setItem(CANCEL_PURCHASE_SLOT, replace(player, inventory.getItem(CANCEL_PURCHASE_SLOT), balance, cost));
     }
 
-    private ItemStack replace(final Player player, final ItemStack item, final long balance, final int price) {
+    private ItemStack replace(final Player player, final ItemStack item, final double balance, final int price) {
         Placeholders.replace(item, price, "price");
         Placeholders.replace(item, balance, "tokens", "balance");
         Placeholders.replace(item, player.getName(), "player");

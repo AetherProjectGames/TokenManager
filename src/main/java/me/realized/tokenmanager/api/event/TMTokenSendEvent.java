@@ -9,7 +9,7 @@ public class TMTokenSendEvent extends TMEvent {
 
     private final Player target;
 
-    public TMTokenSendEvent(final Player player, final Player target, final long amount) {
+    public TMTokenSendEvent(final Player player, final Player target, final double amount) {
         super(player, amount);
         this.target = target;
     }

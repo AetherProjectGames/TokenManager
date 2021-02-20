@@ -2,22 +2,15 @@ package me.realized.tokenmanager.data.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+
+import java.io.DataOutput;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalLong;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +44,7 @@ public class MySQLDatabase extends AbstractDatabase {
     private static final String SERVER_MODE_MISMATCH = "Server is in %s mode, but found table '%s' does not have column '%s'! Please choose a different table name.";
     private final String table;
     private final ExecutorService executor;
-    private final Map<UUID, Long> data = new HashMap<>();
+    private final Map<UUID, Double> data = new HashMap<>();
 
     private HikariDataSource dataSource;
 
@@ -64,7 +57,7 @@ public class MySQLDatabase extends AbstractDatabase {
         super(plugin);
         this.table = StringEscapeUtils.escapeSql(plugin.getConfiguration().getMysqlTable());
         this.executor = Executors.newCachedThreadPool();
-        Query.update(table, online);
+        Query.update(table, plugin.getConfiguration().getMysqlColumnId(), plugin.getConfiguration().getMysqlColumnUUID(), plugin.getConfiguration().getMysqlColumnUsername(), plugin.getConfiguration().getMysqlColumnBalance());
     }
 
     @Override
@@ -109,53 +102,47 @@ public class MySQLDatabase extends AbstractDatabase {
             Statement statement = connection.createStatement()
         ) {
             statement.execute(Query.CREATE_TABLE.query);
-
-            try (ResultSet resultSet = connection.getMetaData().getColumns(null, null, table, "name")) {
-                if (resultSet.isBeforeFirst() == online) {
-                    throw new Exception(String.format(SERVER_MODE_MISMATCH, online ? "ONLINE" : "OFFLINE", table, online ? "uuid" : "name"));
-                }
-            }
         }
     }
 
     @Override
-    public OptionalLong get(final Player player) {
+    public OptionalDouble get(final Player player) {
         if(player != null) {
             UUID uniqueId = player.getUniqueId();
             return from(data.get(uniqueId));
         }
-        return OptionalLong.empty();
+        return OptionalDouble.empty();
     }
 
     @Override
-    public void get(final String key, final Consumer<OptionalLong> onLoad, final Consumer<String> onError, final boolean create) {
+    public void get(final String uuid, final String username, final Consumer<OptionalDouble> onLoad, final Consumer<String> onError, final boolean create) {
         try (Connection connection = dataSource.getConnection()) {
-            onLoad.accept(select(connection, key, create));
+            onLoad.accept(select(connection, uuid, username, create));
         } catch (Exception ex) {
             if (onError != null) {
                 onError.accept(ex.getMessage());
             }
 
-            Log.error("Failed to obtain data for " + key + ": " + ex.getMessage());
+            Log.error("Failed to obtain data for " + uuid + ": " + ex.getMessage());
             ex.printStackTrace();
         }
     }
 
     @Override
-    public void set(final Player player, final long value) {
+    public void set(final Player player, final double value) {
         data.put(player.getUniqueId(), value);
     }
 
     @Override
-    public void set(final String key, final ModifyType type, final long amount, final long balance, final boolean silent, final Runnable onDone, final Consumer<String> onError) {
+    public void set(final String uuid, final String username, final ModifyType type, final double amount, final double balance, final boolean silent, final Runnable onDone, final Consumer<String> onError) {
         plugin.doAsync(() -> {
             try (Connection connection = dataSource.getConnection()) {
-                update(connection, key, balance);
+                update(connection, uuid, balance);
 
                 if (usingRedis) {
-                    publish(key + ":" + type.name() + ":" + amount + ":" + silent);
+                    publish(uuid + ":" + type.name() + ":" + amount + ":" + silent);
                 } else {
-                    plugin.doSync(() -> onModification(key, type, amount, silent));
+                    plugin.doSync(() -> onModification(uuid, type, amount, silent));
                 }
 
                 if (onDone != null) {
@@ -166,24 +153,24 @@ public class MySQLDatabase extends AbstractDatabase {
                     onError.accept(ex.getMessage());
                 }
 
-                Log.error("Failed to save data for " + key + ": " + ex.getMessage());
+                Log.error("Failed to save data for " + uuid + ": " + ex.getMessage());
                 ex.printStackTrace();
             }
         });
     }
 
     @Override
-    public void load(final AsyncPlayerPreLoginEvent event, final Function<Long, Long> modifyLoad) {
-        load(online ? event.getUniqueId().toString() : event.getName(), event.getUniqueId(), modifyLoad);
+    public void load(final AsyncPlayerPreLoginEvent event, final Function<Double, Double> modifyLoad) {
+        load(event.getUniqueId(), event.getName(), modifyLoad);
     }
 
     @Override
     public void load(final Player player) {
-        load(from(player), player.getUniqueId(), null);
+        load(player.getUniqueId(), player.getName(), null);
     }
 
-    private void load(final String key, final UUID uuid, final Function<Long, Long> modifyLoad) {
-        plugin.doAsyncLater(() -> get(key, balance -> {
+    private void load(final UUID uuid, final String username, final Function<Double, Double> modifyLoad) {
+        plugin.doAsyncLater(() -> get(uuid.toString(), username, balance -> {
             if (!balance.isPresent()) {
                 return;
             }
@@ -194,7 +181,7 @@ public class MySQLDatabase extends AbstractDatabase {
                     return;
                 }
 
-                long totalBalance = balance.getAsLong();
+                double totalBalance = balance.getAsDouble();
 
                 if (modifyLoad != null) {
                     totalBalance = modifyLoad.apply(totalBalance);
@@ -207,7 +194,7 @@ public class MySQLDatabase extends AbstractDatabase {
 
     @Override
     public void save(final Player player) {
-        final OptionalLong balance = from(data.remove(player.getUniqueId()));
+        final OptionalDouble balance = from(data.remove(player.getUniqueId()));
 
         if (!balance.isPresent()) {
             return;
@@ -215,7 +202,7 @@ public class MySQLDatabase extends AbstractDatabase {
 
         executor.execute(() -> {
             try (Connection connection = dataSource.getConnection()) {
-                update(connection, from(player), balance.getAsLong());
+                update(connection, from(player), balance.getAsDouble());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -256,7 +243,7 @@ public class MySQLDatabase extends AbstractDatabase {
         }
 
         // Create a copy of the current cache to prevent HashMap being accessed by multiple threads
-        final Map<UUID, Long> copy = new HashMap<>(data);
+        final Map<UUID, Double> copy = new HashMap<>(data);
 
         plugin.doAsync(() -> {
             try (Connection connection = dataSource.getConnection()) {
@@ -268,8 +255,12 @@ public class MySQLDatabase extends AbstractDatabase {
 
                     try (ResultSet resultSet = statement.executeQuery()) {
                         while (resultSet.next()) {
-                            final String key = online ? resultSet.getString("uuid") : resultSet.getString("name");
-                            result.add(new TopElement(key, (int) resultSet.getLong("tokens")));
+                            String uuidString = resultSet.getString(1);
+                            String usernameString = resultSet.getString(2);
+                            Double balanceDouble = resultSet.getDouble(3);
+                            if(uuidString != null && usernameString != null && balanceDouble != null) {
+                                result.add(new TopElement(uuidString, usernameString, balanceDouble));
+                            }
                         }
 
                         replaceNames(result, onLoad);
@@ -313,10 +304,16 @@ public class MySQLDatabase extends AbstractDatabase {
                 final Set<String> keys = section.getKeys(false);
 
                 for (final String key : keys) {
-                    final long value = section.getLong(key);
+                    final double value = section.getDouble(key);
                     statement.setString(1, key);
-                    statement.setLong(2, value);
-                    statement.setLong(3, value);
+                    Player player = Bukkit.getPlayer(UUID.fromString(key));
+                    String name = key;
+                    if(player != null) {
+                        name = player.getName();
+                    }
+                    statement.setString(2, name);
+                    statement.setDouble(3, value);
+                    statement.setDouble(4, value);
                     statement.addBatch();
 
                     if (++i % 100 == 0 || i == keys.size()) {
@@ -335,7 +332,7 @@ public class MySQLDatabase extends AbstractDatabase {
         });
     }
 
-    private void insertCache(final Connection connection, final Map<UUID, Long> cache, final boolean remove) throws SQLException {
+    private void insertCache(final Connection connection, final Map<UUID, Double> cache, final boolean remove) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(Query.UPDATE.query)) {
             connection.setAutoCommit(false);
 
@@ -343,14 +340,14 @@ public class MySQLDatabase extends AbstractDatabase {
             final Collection<? extends Player> players = Bukkit.getOnlinePlayers();
 
             for (final Player player : players) {
-                final Optional<Long> balance = Optional.ofNullable(remove ? cache.remove(player.getUniqueId()) : cache.get(player.getUniqueId()));
+                final Optional<Double> balance = Optional.ofNullable(remove ? cache.remove(player.getUniqueId()) : cache.get(player.getUniqueId()));
 
                 if (!balance.isPresent()) {
                     continue;
                 }
 
-                statement.setLong(1, balance.get());
-                statement.setString(2, online ? player.getUniqueId().toString() : player.getName());
+                statement.setDouble(1, balance.get());
+                statement.setString(2, player.getUniqueId().toString());
                 statement.addBatch();
 
                 if (++i % 100 == 0 || i == players.size()) {
@@ -362,41 +359,42 @@ public class MySQLDatabase extends AbstractDatabase {
         }
     }
 
-    private OptionalLong select(final Connection connection, final String key, final boolean create) throws Exception {
+    private OptionalDouble select(final Connection connection, final String uuid, final String username, final boolean create) throws Exception {
         try (PreparedStatement selectStatement = connection.prepareStatement(Query.SELECT_ONE.query)) {
-            selectStatement.setString(1, key);
+            selectStatement.setString(1, uuid);
 
             try (ResultSet resultSet = selectStatement.executeQuery()) {
                 if (!resultSet.next()) {
                     if (create) {
-                        final long defaultBalance = plugin.getConfiguration().getDefaultBalance();
+                        final double defaultBalance = plugin.getConfiguration().getDefaultBalance();
 
                         try (PreparedStatement insertStatement = connection.prepareStatement(Query.INSERT.query)) {
-                            insertStatement.setString(1, key);
-                            insertStatement.setLong(2, plugin.getConfiguration().getDefaultBalance());
+                            insertStatement.setString(1, uuid);
+                            insertStatement.setString(2, username);
+                            insertStatement.setDouble(3, plugin.getConfiguration().getDefaultBalance());
                             insertStatement.execute();
                         }
 
-                        return OptionalLong.of(defaultBalance);
+                        return OptionalDouble.of(defaultBalance);
                     }
 
-                    return OptionalLong.empty();
+                    return OptionalDouble.empty();
                 }
 
-                return OptionalLong.of(resultSet.getLong("tokens"));
+                return OptionalDouble.of(resultSet.getDouble(1));
             }
         }
     }
 
-    private void update(final Connection connection, final String key, final long value) throws Exception {
+    private void update(final Connection connection, final String key, final double value) throws Exception {
         try (PreparedStatement statement = connection.prepareStatement(Query.UPDATE.query)) {
-            statement.setLong(1, value);
+            statement.setDouble(1, value);
             statement.setString(2, key);
             statement.execute();
         }
     }
 
-    private void onModification(final String key, final ModifyType type, final long amount, final boolean silent) {
+    private void onModification(final String key, final ModifyType type, final double amount, final boolean silent) {
         final Player player;
 
         if (ProfileUtil.isUUID(key)) {
@@ -414,13 +412,13 @@ public class MySQLDatabase extends AbstractDatabase {
             return;
         }
 
-        final OptionalLong cached;
+        final OptionalDouble cached;
 
         if (!(cached = get(player)).isPresent()) {
             return;
         }
 
-        set(player, type.apply(cached.getAsLong(), amount));
+        set(player, type.apply(cached.getAsDouble(), amount));
 
         if (silent) {
             return;
@@ -437,12 +435,12 @@ public class MySQLDatabase extends AbstractDatabase {
 
     private enum Query {
 
-        CREATE_TABLE("CREATE TABLE IF NOT EXISTS {table} (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, {column} NOT NULL UNIQUE, tokens BIGINT(255) NOT NULL);"),
-        SELECT_WITH_LIMIT("SELECT {identifier}, tokens FROM {table} ORDER BY tokens DESC LIMIT ?;"),
-        SELECT_ONE("SELECT tokens FROM {table} WHERE {identifier}=?;"),
-        INSERT("INSERT INTO {table} ({identifier}, tokens) VALUES (?, ?);"),
-        UPDATE("UPDATE {table} SET tokens=? WHERE {identifier}=?;"),
-        INSERT_OR_UPDATE("INSERT INTO {table} ({identifier}, tokens) VALUES (?, ?) ON DUPLICATE KEY UPDATE tokens=?;");
+        CREATE_TABLE("CREATE TABLE IF NOT EXISTS {table} ({column_id} INT AUTO_INCREMENT PRIMARY KEY, {column_uuid} VARCHAR(36) NOT NULL UNIQUE, {column_username} VARCHAR(16) NOT NULL UNIQUE, {column_balance} DOUBLE(11,2) NOT NULL);"),
+        SELECT_WITH_LIMIT("SELECT {column_uuid}, {column_username}, {column_balance} FROM {table} ORDER BY {column_balance} DESC LIMIT ?;"),
+        SELECT_ONE("SELECT {column_balance} FROM {table} WHERE {column_uuid}=?;"),
+        INSERT("INSERT INTO {table} ({column_uuid}, {column_username}, {column_balance}) VALUES (?, ?, ?);"),
+        UPDATE("UPDATE {table} SET {column_balance}=? WHERE {column_uuid}=?;"),
+        INSERT_OR_UPDATE("INSERT INTO {table} ({column_uuid}, {column_username}, {column_balance}) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE {column_balance}=?;");
 
         private String query;
 
@@ -450,13 +448,15 @@ public class MySQLDatabase extends AbstractDatabase {
             this.query = query;
         }
 
-        private static void update(final String table, final boolean online) {
+        private static void update(final String table, final String columnIdName, final String columnUUIDName, final String columnUsernameName, final String columnBalanceName) {
             for (final Query query : values()) {
-                query.replace(s -> s.replace("{table}", table).replace("{identifier}", online ? "uuid" : "name"));
+                query.replace(s -> s.replace("{table}", table)
+                        .replace("{column_id}", columnIdName)
+                        .replace("{column_uuid}", columnUUIDName)
+                        .replace("{column_username}", columnUsernameName)
+                        .replace("{column_balance}", columnBalanceName)
+                );
 
-                if (query == CREATE_TABLE) {
-                    query.replace(s -> s.replace("{column}", online ? "uuid VARCHAR(36)" : "name VARCHAR(16)"));
-                }
             }
         }
 
@@ -477,13 +477,13 @@ public class MySQLDatabase extends AbstractDatabase {
 
             plugin.doSync(() -> {
                 final ModifyType type = ModifyType.valueOf(args[1]);
-                final OptionalLong amount = NumberUtil.parseLong(args[2]);
+                final OptionalDouble amount = NumberUtil.parseLong(args[2]);
 
                 if (!amount.isPresent()) {
                     return;
                 }
 
-                onModification(args[0], type, amount.getAsLong(), args[3].equals("true"));
+                onModification(args[0], type, amount.getAsDouble(), args[3].equals("true"));
             });
         }
 

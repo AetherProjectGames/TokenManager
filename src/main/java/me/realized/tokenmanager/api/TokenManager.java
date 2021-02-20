@@ -1,6 +1,7 @@
 package me.realized.tokenmanager.api;
 
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.OptionalLong;
 import java.util.UUID;
 import me.realized.tokenmanager.shop.Shop;
@@ -54,9 +55,9 @@ public interface TokenManager {
      * Get online player's token balance.
      *
      * @param player Player to get token balance
-     * @return OptionalLong containing token balance if found, otherwise empty
+     * @return OptionalDouble containing token balance if found, otherwise empty
      */
-    OptionalLong getTokens(final Player player);
+    OptionalDouble getTokens(final Player player);
 
 
     /**
@@ -65,7 +66,7 @@ public interface TokenManager {
      * @param player Player to set token balance
      * @param amount Amount to replace player's token balance
      */
-    void setTokens(final Player player, final long amount);
+    void setTokens(final Player player, final double amount);
 
 
     /**
@@ -76,7 +77,7 @@ public interface TokenManager {
      * @return true if add was successful, Otherwise false
      * @since v3.2.3
      */
-    boolean addTokens(final Player player, final long amount);
+    boolean addTokens(final Player player, final double amount);
 
 
     /**
@@ -87,7 +88,7 @@ public interface TokenManager {
      * @return true if remove was successful, Otherwise false
      * @since v3.2.3
      */
-    boolean removeTokens(final Player player, final long amount);
+    boolean removeTokens(final Player player, final double amount);
 
 
     /**
@@ -97,45 +98,47 @@ public interface TokenManager {
      * @param amount Amount to replace player's token balance
      * @since v3.1.0
      */
-    void setTokens(final String key, final long amount);
+    void setTokens(final String uuid, final String username, final double amount);
 
 
     /**
      * Add tokens to player's token balance.
      *
-     * @param key {@link UUID#toString()} if server is in online mode, otherwise name of the player
+     * @param uuid {@link UUID#toString()}
+     * @param username {@link Player#getName()}
      * @param amount Amount to add to player's token balance
      * @param silent true to prevent sending message if target player is online
      * @since v3.1.0
      */
-    void addTokens(final String key, final long amount, final boolean silent);
+    void addTokens(final String uuid, final String username, final double amount, final boolean silent);
 
 
     /**
-     * Works the same as {@link #addTokens(String, long, boolean)} with silent defaulting to false.
+     * Works the same as {@link #addTokens(String, String, long, boolean)} with silent defaulting to false.
      *
-     * @see #addTokens(String, long, boolean)
+     * @see #addTokens(String, String, long, boolean)
      */
-    void addTokens(final String key, final long amount);
+    void addTokens(final String uuid, final String username, final double amount);
 
 
     /**
      * Remove tokens from player's token balance.
      *
-     * @param key {@link UUID#toString()} if server is in online mode, otherwise name of the player
+     * @param uuid {@link UUID#toString()}
+     * @param username {@link Player#getName()}
      * @param amount Amount to remove from player's token balance
      * @param silent true to prevent sending message if target player is online
      * @since v3.1.0
      */
-    void removeTokens(final String key, final long amount, final boolean silent);
+    void removeTokens(final String uuid, final String username, final double amount, final boolean silent);
 
 
     /**
-     * Works the same as {@link #removeTokens(String, long, boolean)} with silent defaulting to false.
+     * Works the same as {@link #removeTokens(String, String, long, boolean)} with silent defaulting to false.
      *
-     * @see #removeTokens(String, long, boolean)
+     * @see #removeTokens(String, String, long, boolean)
      */
-    void removeTokens(final String key, final long amount);
+    void removeTokens(final String uuid, final String username, final double amount);
 
 
     /**

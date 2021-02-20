@@ -10,6 +10,7 @@ public final class Permissions {
     public static final String CMD_SELL = PREFIX + "use.sell";
     public static final String CMD_SELL_ALL = PREFIX + "use.sell.all";
     public static final String CMD_SEND = PREFIX + "use.send";
+    public static final String CMD_RECEIVE = PREFIX + "use.receive";
     public static final String CMD_SHOP = PREFIX + "use.shop";
     public static final String CMD_TOP = PREFIX + "use.top";
     public static final String CMD_WORTH = PREFIX + "use.worth";

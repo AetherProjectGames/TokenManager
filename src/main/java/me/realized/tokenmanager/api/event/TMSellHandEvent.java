@@ -10,7 +10,7 @@ public class TMSellHandEvent extends TMEvent {
 
     private final ItemStack item;
 
-    public TMSellHandEvent(final Player player, final long amount, final ItemStack item) {
+    public TMSellHandEvent(final Player player, final double amount, final ItemStack item) {
         super(player, amount);
         this.item = item;
     }

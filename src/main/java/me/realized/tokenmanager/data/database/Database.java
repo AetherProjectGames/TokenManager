@@ -1,7 +1,8 @@
 package me.realized.tokenmanager.data.database;
 
 import java.util.List;
-import java.util.OptionalLong;
+import java.util.OptionalDouble;
+import java.util.OptionalDouble;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import me.realized.tokenmanager.command.commands.subcommands.OfflineCommand.ModifyType;
@@ -24,17 +25,17 @@ public interface Database {
      * Gets the cached balance of the player.
      *
      * @param player Player to get the data
-     * @return instance of {@link OptionalLong} with the player's token balance if found, otherwise empty
+     * @return instance of {@link OptionalDouble} with the player's token balance if found, otherwise empty
      */
-    OptionalLong get(final Player player);
+    OptionalDouble get(final Player player);
 
-    void get(final String key, final Consumer<OptionalLong> onLoad, final Consumer<String> onError, final boolean create);
+    void get(final String uuid, final String username, final Consumer<OptionalDouble> onLoad, final Consumer<String> onError, final boolean create);
 
-    void set(final Player player, final long value);
+    void set(final Player player, final double value);
 
-    void set(final String key, final ModifyType type, final long amount, final long balance, final boolean silent, final Runnable onDone, final Consumer<String> onError);
+    void set(final String uuid, final String username, final ModifyType type, final double amount, final double balance, final boolean silent, final Runnable onDone, final Consumer<String> onError);
 
-    void load(final AsyncPlayerPreLoginEvent event, final Function<Long, Long> modifyLoad);
+    void load(final AsyncPlayerPreLoginEvent event, final Function<Double, Double> modifyLoad);
 
     void load(final Player player);
 
@@ -54,23 +55,25 @@ public interface Database {
 
     class TopElement {
 
-        private final long tokens;
-        private String key;
+        private final double tokens;
+        private String uuid;
+        private String username;
 
-        TopElement(final String key, final long tokens) {
-            this.key = key;
+        TopElement(final String uuid, final String username, final double tokens) {
+            this.uuid = uuid;
+            this.username = username;
             this.tokens = tokens;
         }
 
         public String getKey() {
-            return key;
+            return uuid;
         }
 
         void setKey(final String key) {
-            this.key = key;
+            this.uuid = key;
         }
 
-        public long getTokens() {
+        public double getTokens() {
             return tokens;
         }
     }

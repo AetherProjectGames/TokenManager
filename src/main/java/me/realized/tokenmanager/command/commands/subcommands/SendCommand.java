@@ -2,7 +2,7 @@ package me.realized.tokenmanager.command.commands.subcommands;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.OptionalLong;
+import java.util.OptionalDouble;
 import me.realized.tokenmanager.Permissions;
 import me.realized.tokenmanager.TokenManagerPlugin;
 import me.realized.tokenmanager.api.event.TMTokenSendEvent;
@@ -36,19 +36,24 @@ public class SendCommand extends BaseCommand {
             return;
         }
 
+        if(!target.hasPermission(Permissions.CMD_RECEIVE)) {
+            sendMessage(sender, true, "ERROR.target-dont-have-permission");
+            return;
+        }
+
         if (config.isAltPrevention() && target.getAddress().getHostName().equals(((Player) sender).getAddress().getHostName())) {
             sendMessage(sender, true, "ERROR.target-has-same-ip");
             return;
         }
 
-        final OptionalLong targetBalance = dataManager.get(target);
+        final OptionalDouble targetBalance = dataManager.get(target);
 
         if (!targetBalance.isPresent()) {
             sendMessage(sender, false, "&cFailed to load data of " + target.getName() + ".");
             return;
         }
 
-        final long amount = NumberUtil.parseLong(args[2]).orElse(0);
+        final double amount = NumberUtil.parseLong(args[2]).orElse(0);
 
         if (amount <= 0 || (config.getSendMin() > -1 && amount < config.getSendMin()) || (config.getSendMax() > -1 && amount > config.getSendMax())) {
             sendMessage(sender, true, "ERROR.invalid-amount", "input", args[2]);
@@ -56,16 +61,16 @@ public class SendCommand extends BaseCommand {
         }
 
         final Player player = (Player) sender;
-        final OptionalLong balance = dataManager.get(player);
+        final OptionalDouble balance = dataManager.get(player);
 
         if (!balance.isPresent()) {
             sendMessage(sender, true, "&cFailed to load data of " + sender.getName() + ".");
             return;
         }
 
-        final long needed;
+        final double needed;
 
-        if ((needed = balance.getAsLong() - amount) < 0) {
+        if ((needed = balance.getAsDouble() - amount) < 0) {
             sendMessage(sender, true, "ERROR.balance-not-enough", "needed", Math.abs(needed));
             return;
         }
@@ -77,7 +82,7 @@ public class SendCommand extends BaseCommand {
             return;
         }
 
-        dataManager.set(player, balance.getAsLong() - amount);
+        dataManager.set(player, balance.getAsDouble() - amount);
         sendMessage(sender, true, "COMMAND.token.send", "player", target.getName(), "amount", amount);
 
         final TokenReceiveEvent tokenReceiveEvent = new TokenReceiveEvent(target.getUniqueId(), (int) amount);
@@ -87,7 +92,7 @@ public class SendCommand extends BaseCommand {
             return;
         }
 
-        dataManager.set(target, targetBalance.getAsLong() + amount);
+        dataManager.set(target, targetBalance.getAsDouble() + amount);
         sendMessage(target, true, "COMMAND.token.receive", "player", sender.getName(), "amount", amount);
     }
 

@@ -7,10 +7,10 @@ import org.bukkit.event.Event;
 abstract class TMEvent extends Event implements Cancellable {
 
     private final Player player;
-    private final long amount;
+    private final double amount;
     private boolean cancelled;
 
-    TMEvent(final Player player, final long amount) {
+    TMEvent(final Player player, final double amount) {
         this.player = player;
         this.amount = amount;
     }
@@ -19,7 +19,7 @@ abstract class TMEvent extends Event implements Cancellable {
         return player;
     }
 
-    public long getAmount() {
+    public double getAmount() {
         return amount;
     }
 

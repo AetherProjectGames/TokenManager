@@ -1,21 +1,21 @@
 package me.realized.tokenmanager.util;
 
 import java.text.DecimalFormat;
-import java.util.OptionalLong;
+import java.util.OptionalDouble;
 
 public final class NumberUtil {
 
     private static final DecimalFormat COMMA_FORMAT = new DecimalFormat("#,###");
 
     /**
-     * Copy of {@link Long#parseLong(String)} but returns an empty {@link OptionalLong} instead of throwing a {@link NumberFormatException}.
+     * Copy of {@link Long#parseLong(String)} but returns an empty {@link OptionalDouble} instead of throwing a {@link NumberFormatException}.
      *
      * @param s String to parse.
-     * @return {@link OptionalLong} instance with parsed value inside or empty if string is invalid.
+     * @return {@link OptionalDouble} instance with parsed value inside or empty if string is invalid.
      */
-    public static OptionalLong parseLong(final String s) throws NumberFormatException {
+    public static OptionalDouble parseLong(final String s) throws NumberFormatException {
         if (s == null) {
-            return OptionalLong.empty();
+            return OptionalDouble.empty();
         }
 
         long result = 0;
@@ -32,11 +32,11 @@ public final class NumberUtil {
                     negative = true;
                     limit = Long.MIN_VALUE;
                 } else if (firstChar != '+') {
-                    return OptionalLong.empty();
+                    return OptionalDouble.empty();
                 }
 
                 if (len == 1) {
-                    return OptionalLong.empty();
+                    return OptionalDouble.empty();
                 }
 
                 i++;
@@ -46,30 +46,30 @@ public final class NumberUtil {
                 digit = Character.digit(s.charAt(i++), 10);
 
                 if (digit < 0) {
-                    return OptionalLong.empty();
+                    return OptionalDouble.empty();
                 }
                 if (result < multmin) {
-                    return OptionalLong.empty();
+                    return OptionalDouble.empty();
                 }
                 result *= 10;
                 if (result < limit + digit) {
-                    return OptionalLong.empty();
+                    return OptionalDouble.empty();
                 }
                 result -= digit;
             }
         } else {
-            return OptionalLong.empty();
+            return OptionalDouble.empty();
         }
 
-        return OptionalLong.of(negative ? result : -result);
+        return OptionalDouble.of(negative ? result : -result);
     }
 
-    public static String withCommas(final long n) {
+    public static String withCommas(final double n) {
         return COMMA_FORMAT.format(n);
     }
 
     // Source: https://stackoverflow.com/questions/9769554/how-to-convert-number-into-k-thousands-m-million-and-b-billion-suffix-in-jsp
-    public static String withSuffix(final long n) {
+    public static String withSuffix(final double n) {
         if (n < 1000) {
             return "" + n;
         }

@@ -5,7 +5,7 @@ import org.bukkit.Bukkit;
 
 public final class CompatUtil {
 
-    private static final long SUB_VERSION;
+    private static final double SUB_VERSION;
 
     static {
         final String packageName = Bukkit.getServer().getClass().getPackage().getName();

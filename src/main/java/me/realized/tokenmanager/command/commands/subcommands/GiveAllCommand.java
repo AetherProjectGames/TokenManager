@@ -1,7 +1,7 @@
 package me.realized.tokenmanager.command.commands.subcommands;
 
 import java.util.Collection;
-import java.util.OptionalLong;
+import java.util.OptionalDouble;
 import me.realized.tokenmanager.TokenManagerPlugin;
 import me.realized.tokenmanager.command.BaseCommand;
 import me.realized.tokenmanager.util.NumberUtil;
@@ -17,9 +17,9 @@ public class GiveAllCommand extends BaseCommand {
 
     @Override
     protected void execute(final CommandSender sender, final String label, final String[] args) {
-        final OptionalLong amount = NumberUtil.parseLong(args[1]);
+        final OptionalDouble amount = NumberUtil.parseLong(args[1]);
 
-        if (!amount.isPresent() || amount.getAsLong() <= 0) {
+        if (!amount.isPresent() || amount.getAsDouble() <= 0) {
             sendMessage(sender, true, "ERROR.invalid-amount", "input", args[1]);
             return;
         }
@@ -27,16 +27,16 @@ public class GiveAllCommand extends BaseCommand {
         final Collection<? extends Player> online = Bukkit.getOnlinePlayers();
 
         for (final Player player : online) {
-            final OptionalLong balance = dataManager.get(player);
+            final OptionalDouble balance = dataManager.get(player);
 
             if (!balance.isPresent()) {
                 continue;
             }
 
-            dataManager.set(player, balance.getAsLong() + amount.getAsLong());
-            sendMessage(player, true, "COMMAND.add", "amount", amount.getAsLong());
+            dataManager.set(player, balance.getAsDouble() + amount.getAsDouble());
+            sendMessage(player, true, "COMMAND.add", "amount", amount.getAsDouble());
         }
 
-        sendMessage(sender, true, "COMMAND.tokenmanager.giveall", "players", online.size(), "amount", amount.getAsLong());
+        sendMessage(sender, true, "COMMAND.tokenmanager.giveall", "players", online.size(), "amount", amount.getAsDouble());
     }
 }

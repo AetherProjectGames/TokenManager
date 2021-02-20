@@ -7,7 +7,7 @@ public class TMSellAllEvent extends TMEvent {
 
     private static final HandlerList handlers = new HandlerList();
 
-    public TMSellAllEvent(final Player player, final long amount) {
+    public TMSellAllEvent(final Player player, final double amount) {
         super(player, amount);
     }
 

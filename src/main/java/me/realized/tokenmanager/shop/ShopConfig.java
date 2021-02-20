@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalLong;
+import java.util.OptionalDouble;
 import lombok.Getter;
 import me.realized.tokenmanager.TokenManagerPlugin;
 import me.realized.tokenmanager.config.Config;
@@ -68,14 +68,14 @@ public class ShopConfig extends AbstractConfiguration<TokenManagerPlugin> implem
 
             if (itemsSection != null) {
                 for (final String num : itemsSection.getKeys(false)) {
-                    final OptionalLong target = NumberUtil.parseLong(num);
+                    final OptionalDouble target = NumberUtil.parseLong(num);
 
                     if (!target.isPresent()) {
                         Log.error(this, "Failed to load slot '" + num + "' of shop '" + name + "': '" + num + "' is not a valid number.");
                         continue;
                     }
 
-                    final long slot = target.getAsLong();
+                    final double slot = target.getAsDouble();
 
                     if (slot < 0 || slot >= shop.getInventory().getSize()) {
                         Log.error(this, "Failed to load slot '" + num + "' of shop '" + name + "': '" + slot + "' is over the shop size.");

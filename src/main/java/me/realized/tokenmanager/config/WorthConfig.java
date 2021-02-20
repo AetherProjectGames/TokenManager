@@ -2,7 +2,9 @@ package me.realized.tokenmanager.config;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.OptionalDouble;
 import java.util.OptionalLong;
+
 import me.realized.tokenmanager.TokenManagerPlugin;
 import me.realized.tokenmanager.util.Reloadable;
 import me.realized.tokenmanager.util.config.AbstractConfiguration;

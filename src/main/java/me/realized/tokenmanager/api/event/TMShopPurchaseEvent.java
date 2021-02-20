@@ -12,7 +12,7 @@ public class TMShopPurchaseEvent extends TMEvent {
     private final Shop shop;
     private final Slot slot;
 
-    public TMShopPurchaseEvent(final Player player, final long amount, final Shop shop, final Slot slot) {
+    public TMShopPurchaseEvent(final Player player, final double amount, final Shop shop, final Slot slot) {
         super(player, amount);
         this.shop = shop;
         this.slot = slot;

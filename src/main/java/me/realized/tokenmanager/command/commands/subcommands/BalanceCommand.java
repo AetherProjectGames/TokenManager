@@ -1,6 +1,6 @@
 package me.realized.tokenmanager.command.commands.subcommands;
 
-import java.util.OptionalLong;
+import java.util.OptionalDouble;
 import me.realized.tokenmanager.Permissions;
 import me.realized.tokenmanager.TokenManagerPlugin;
 import me.realized.tokenmanager.command.BaseCommand;
@@ -16,17 +16,17 @@ public class BalanceCommand extends BaseCommand {
 
     @Override
     protected void execute(final CommandSender sender, final String label, final String[] args) {
-        final OptionalLong balance;
+        final OptionalDouble balance;
 
         if (args.length == getLength()) {
-            balance = sender instanceof Player ? dataManager.get((Player) sender) : OptionalLong.of(0);
+            balance = sender instanceof Player ? dataManager.get((Player) sender) : OptionalDouble.of(0);
 
             if (!balance.isPresent()) {
                 sendMessage(sender, false, "&cFailed to load data of " + sender.getName() + ".");
                 return;
             }
 
-            sendMessage(sender, true, "COMMAND.token.balance", "tokens", balance.getAsLong());
+            sendMessage(sender, true, "COMMAND.token.balance", "tokens", balance.getAsDouble());
             return;
         }
 
@@ -49,6 +49,6 @@ public class BalanceCommand extends BaseCommand {
             return;
         }
 
-        sendMessage(sender, true, "COMMAND.token.balance-other", "player", target.getName(), "tokens", balance.getAsLong());
+        sendMessage(sender, true, "COMMAND.token.balance-other", "player", target.getName(), "tokens", balance.getAsDouble());
     }
 }

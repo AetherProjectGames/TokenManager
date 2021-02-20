@@ -1,6 +1,6 @@
 package me.realized.tokenmanager.command.commands;
 
-import java.util.OptionalLong;
+import java.util.OptionalDouble;
 import me.realized.tokenmanager.Permissions;
 import me.realized.tokenmanager.TokenManagerPlugin;
 import me.realized.tokenmanager.command.BaseCommand;
@@ -26,7 +26,7 @@ public class TokenCommand extends BaseCommand {
 
     @Override
     protected void execute(final CommandSender sender, final String label, final String[] args) {
-        final OptionalLong balance;
+        final OptionalDouble balance;
 
         if (sender instanceof Player) {
             final Player player = (Player) sender;
@@ -37,7 +37,7 @@ public class TokenCommand extends BaseCommand {
                 return;
             }
         } else {
-            balance = OptionalLong.empty();
+            balance = OptionalDouble.empty();
         }
 
         sendMessage(sender, true, "COMMAND.token.balance", "tokens", balance.orElse(0));

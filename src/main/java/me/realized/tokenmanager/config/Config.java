@@ -15,11 +15,9 @@ public class Config extends AbstractConfiguration<TokenManagerPlugin> {
     @Getter
     private boolean checkForUpdates;
     @Getter
-    private String onlineMode;
-    @Getter
     private boolean altPrevention;
     @Getter
-    private int defaultBalance;
+    private double defaultBalance;
     @Getter
     private long sendMin;
     @Getter
@@ -40,8 +38,6 @@ public class Config extends AbstractConfiguration<TokenManagerPlugin> {
     private boolean checkInventoryFull;
     @Getter
     private boolean logPurchases;
-    @Getter
-    private boolean mysqlEnabled;
     @Getter
     private String mysqlUsername;
     @Getter
@@ -68,6 +64,14 @@ public class Config extends AbstractConfiguration<TokenManagerPlugin> {
     private boolean registerEconomy;
     @Getter
     private int balanceTopUpdateInterval;
+    @Getter
+    private String mysqlColumnId;
+    @Getter
+    private String mysqlColumnUUID;
+    @Getter
+    private String mysqlColumnUsername;
+    @Getter
+    private String mysqlColumnBalance;
 
     public Config(final TokenManagerPlugin plugin) {
         super(plugin, "config");
@@ -83,9 +87,8 @@ public class Config extends AbstractConfiguration<TokenManagerPlugin> {
 
         version = configuration.getInt("config-version");
         checkForUpdates = configuration.getBoolean("check-for-updates", true);
-        onlineMode = configuration.getString("online-mode", "auto");
         altPrevention = configuration.getBoolean("alt-prevention", false);
-        defaultBalance = configuration.getInt("default-balance", 25);
+        defaultBalance = configuration.getDouble("default-balance", 25);
         sendMin = configuration.getInt("send-amount-limit.min", 1);
         sendMax = configuration.getInt("send-amount-limit.max", -1);
         openSelectedEnabled = configuration.getBoolean("shop.open-selected.enabled", false);
@@ -96,10 +99,13 @@ public class Config extends AbstractConfiguration<TokenManagerPlugin> {
         clickDelay = configuration.getInt("shop.click-delay", 0);
         checkInventoryFull = configuration.getBoolean("shop.check-inventory-full", false);
         logPurchases = configuration.getBoolean("shop.log-purchases", false);
-        mysqlEnabled = configuration.getBoolean("data.mysql.enabled", false);
         mysqlUsername = configuration.getString("data.mysql.username", "root");
         mysqlPassword = configuration.getString("data.mysql.password", "password");
         mysqlHostname = configuration.getString("data.mysql.hostname", "127.0.0.1");
+        mysqlColumnId = configuration.getString("data.mysql.columns.id", "id");
+        mysqlColumnUUID = configuration.getString("data.mysql.columns.uuid", "uuid");
+        mysqlColumnUsername = configuration.getString("data.mysql.columns.username", "username");
+        mysqlColumnBalance = configuration.getString("data.mysql.columns.balance", "balance");
         mysqlPort = configuration.getString("data.mysql.port", "3306");
         mysqlDatabase = configuration.getString("data.mysql.database", "database");
         mysqlTable = configuration.getString("data.mysql.table", "tokenmanager");
