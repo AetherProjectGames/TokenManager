@@ -89,7 +89,7 @@ public class DataManager implements Loadable, Listener {
 
     public void get(final  String uuid, final String username, final Consumer<OptionalDouble> onLoad, final Consumer<String> onError) {
         if (database != null) {
-            database.get(uuid, username, onLoad, onError, false);
+            database.get(uuid, username, onLoad, onError, true);
         }
     }
 

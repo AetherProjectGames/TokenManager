@@ -85,7 +85,7 @@ public class MySQLDatabase extends AbstractDatabase {
         if(player != null) {
             UUID uuid = player.getUniqueId();
             try (Connection connection = dataSource.getConnection()) {
-                return select(connection, player.getUniqueId(), player.getName(), false);
+                return select(connection, player.getUniqueId(), player.getName(), true);
             } catch (Exception ex) {
                 Log.error("Failed to obtain data for " + uuid + ": " + ex.getMessage());
                 ex.printStackTrace();
@@ -364,7 +364,7 @@ public class MySQLDatabase extends AbstractDatabase {
         SELECT_WITH_LIMIT("SELECT {column_uuid}, {column_username}, {column_balance} FROM {table} ORDER BY {column_balance} DESC LIMIT ?;"),
         SELECT_ONE("SELECT {column_balance} FROM {table} WHERE {column_uuid}=?;"),
         SELECT_ONE_BY_NAME("SELECT {column_balance} FROM {table} WHERE {column_username}=?;"),
-        INSERT("INSERT INTO {table} ({column_uuid}, {column_username}, {column_balance}) VALUES (?, ?, ?);"),
+        INSERT("INSERT IGNORE INTO {table} ({column_uuid}, {column_username}, {column_balance}) VALUES (?, ?, ?);"),
         UPDATE("UPDATE {table} SET {column_balance}=? WHERE {column_uuid}=?;"),
         UPDATE_UUID("UPDATE {table} SET {column_uuid}=? WHERE {column_username}=?;"),
         INSERT_OR_UPDATE("INSERT INTO {table} ({column_uuid}, {column_username}, {column_balance}) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE {column_balance}=?;");
